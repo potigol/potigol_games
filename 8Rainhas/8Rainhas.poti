@@ -1,0 +1,127 @@
+use "jerimum"
+
+#Imagens
+tabulairo_8x8 = Imagem("imagens/Tabuleiro_8x8.jpg")
+rainha_branca = Imagem("imagens/Rainha_branca.png")
+marcador_img = Imagem("imagens/Marcador.png")
+
+#distancia em x
+var d_x := 54
+
+#distancia em y
+var d_y := 54
+
+tipo Marcador
+ var x, y : Inteiro
+  
+  set_x(nx : Inteiro)
+    x := nx
+  fim
+  
+  set_y(ny : Inteiro)
+    y := ny
+  fim
+fim
+
+tipo Casa
+ var x, y : Inteiro
+  
+  set_x(nx : Inteiro)
+    x := nx
+  fim
+  
+  set_y(ny : Inteiro)
+    y := ny
+  fim
+fim
+
+var marcador =  Marcador (24,24)
+var casa =  Casa (1,1)
+var pecas_originais = 8
+
+var matriz = Matriz.mutavel(8, 8, 0)
+  
+
+
+atualize()
+
+  var pos_x := Mouse.x
+  var pos_y := Mouse.y
+  #escreva "Mouse x: " + pos_x + " y: " + pos_y
+  
+para i de 1 até 8 faça 
+ para j de 1 até 8 faça 
+  
+   se pos_x > 24+(d_x*(i-1)) e  pos_x < 24+(d_x*i) e pos_y > 24+(d_y*(j-1)) e  pos_y < 24+(d_y*j) então
+
+      casa.set_x(i)
+      marcador. set_x(( casa.x*d_x) - 28 )  
+
+      casa.set_y(j)
+      marcador. set_y(( casa.y*d_y) - 28 )
+      
+      #se o botão esquerdo for e casa estiver livre clicado adiciona peça
+      se Mouse.BOTAO_ESQUERDO e matriz[i][j] == 0 e  pecas_originais >0 e pecas_originais <=8 então
+ 
+        escreva "Casa["+ casa.x+ ","+casa.y+"]"
+         
+        #adiciona rainha
+        matriz[i][j] := 1 
+        #escreva matriz[i][j] 
+        pecas_originais := pecas_originais -1
+      fim
+      
+       #se o botão esquerdo for e casa estiver livre clicado adiciona peça
+      se Mouse.BOTAO_DIREITO e matriz[i][j] == 1 então
+ 
+        escreva "Casa["+ casa.x+ ","+casa.y+"]"
+         
+        #adiciona rainha
+        matriz[i][j] := 0 
+        #escreva matriz[i][j] 
+        pecas_originais := pecas_originais +1
+      fim
+      
+      
+   fim
+   
+ fim
+fim
+
+
+fim
+
+desenhe()
+
+  #código para desenhar o jogo
+  #desenahndo o tabuleiro
+  tabulairo_8x8.desenhe(0, 0, 0, 0, 0.3, 0.3)
+
+  #rainha_branca.desenhe(24, 26, 1, 0, 0.08, 0.08)
+  #x
+  #rainha_branca.desenhe(78, 26, 1, 0, 0.08, 0.08)
+  #y
+  #rainha_branca.desenhe(24,80, 1, 0, 0.08, 0.08)
+  
+  
+  
+para i de 1 até 8 faça 
+ para j de 1 até 8 faça 
+  
+   se matriz[i][j]==1
+     rainha_branca.desenhe( 24+(d_x*(i-1)) ,24+(d_y*(j-1)) , 1, 0, 0.08, 0.08)
+   fim 
+   
+ fim
+fim
+  
+ marcador_img.desenhe(marcador.x,marcador.y, 1, 0, 0.08, 0.08)
+  
+ para i de 1 ate 8 faça
+  # rainha_branca.desenhe(24, 26, 1, 0, 0.08, 0.08)
+ fim
+  
+  
+fim
+
+jogo.iniciar("OITO_RAINHAS", 640, 480, atualize, desenhe, 60)
