@@ -1,127 +1,65 @@
 use "jerimum"
 
 #Imagens
-tabulairo_8x8 = Imagem("imagens/Tabuleiro_8x8.jpg")
+tabuleiro_8x8 = Imagem("imagens/Tabuleiro_8x8.jpg")
 rainha_branca = Imagem("imagens/Rainha_branca.png")
 marcador_img = Imagem("imagens/Marcador.png")
 
-#distancia em x
-var d_x := 54
+#distancias em x e y
+d_x, d_y = 54
 
-#distancia em y
-var d_y := 54
-
-tipo Marcador
- var x, y : Inteiro
-  
-  set_x(nx : Inteiro)
-    x := nx
-  fim
-  
-  set_y(ny : Inteiro)
-    y := ny
-  fim
+tipo Ponto
+  var x, y: Inteiro
 fim
 
-tipo Casa
- var x, y : Inteiro
-  
-  set_x(nx : Inteiro)
-    x := nx
-  fim
-  
-  set_y(ny : Inteiro)
-    y := ny
-  fim
-fim
+marcador = Ponto(24, 24)
+casa = Ponto(1, 1)
+var pecas_originais := 8
 
-var marcador =  Marcador (24,24)
-var casa =  Casa (1,1)
-var pecas_originais = 8
-
-var matriz = Matriz.mutavel(8, 8, 0)
-  
-
+ocupado = Matriz.mutavel(8, 8, falso)
 
 atualize()
+  i = (Mouse.x + 30) div d_x
+  j = (Mouse.y + 30) div d_y
+  se i>=1 e i<=8 e j>=1 e j<=8 então
+    casa.x := i
+    marcador.x := casa.x * d_x - 28
+    casa.y := j
+    marcador.y := casa.y * d_y - 28
 
-  var pos_x := Mouse.x
-  var pos_y := Mouse.y
-  #escreva "Mouse x: " + pos_x + " y: " + pos_y
-  
-para i de 1 até 8 faça 
- para j de 1 até 8 faça 
-  
-   se pos_x > 24+(d_x*(i-1)) e  pos_x < 24+(d_x*i) e pos_y > 24+(d_y*(j-1)) e  pos_y < 24+(d_y*j) então
+    #se o botão esquerdo for e casa estiver livre clicado adiciona peça
+    se Mouse.BOTAO_ESQUERDO e não ocupado[i][j] e pecas_originais > 0 então
+      escreva "Casa[{casa.x}, {casa.y}]"
+      #adiciona rainha
+      ocupado[i][j] := verdadeiro
+      #escreva matriz[i][j]
+      pecas_originais := pecas_originais - 1
+    fim
 
-      casa.set_x(i)
-      marcador. set_x(( casa.x*d_x) - 28 )  
-
-      casa.set_y(j)
-      marcador. set_y(( casa.y*d_y) - 28 )
-      
-      #se o botão esquerdo for e casa estiver livre clicado adiciona peça
-      se Mouse.BOTAO_ESQUERDO e matriz[i][j] == 0 e  pecas_originais >0 e pecas_originais <=8 então
- 
-        escreva "Casa["+ casa.x+ ","+casa.y+"]"
-         
-        #adiciona rainha
-        matriz[i][j] := 1 
-        #escreva matriz[i][j] 
-        pecas_originais := pecas_originais -1
-      fim
-      
-       #se o botão esquerdo for e casa estiver livre clicado adiciona peça
-      se Mouse.BOTAO_DIREITO e matriz[i][j] == 1 então
- 
-        escreva "Casa["+ casa.x+ ","+casa.y+"]"
-         
-        #adiciona rainha
-        matriz[i][j] := 0 
-        #escreva matriz[i][j] 
-        pecas_originais := pecas_originais +1
-      fim
-      
-      
-   fim
-   
- fim
-fim
-
-
+    #se o botão esquerdo for e casa estiver livre clicado adiciona peça
+    se Mouse.BOTAO_DIREITO e ocupado[i][j] então
+      escreva "Casa[{casa.x}, {casa.y}]"
+      #adiciona rainha
+      ocupado[i][j] := falso
+      #escreva matriz[i][j]
+      pecas_originais := pecas_originais + 1
+    fim
+  fim
 fim
 
 desenhe()
-
   #código para desenhar o jogo
-  #desenahndo o tabuleiro
-  tabulairo_8x8.desenhe(0, 0, 0, 0, 0.3, 0.3)
+  #desenhando o tabuleiro
+  tabuleiro_8x8.desenhe(0, 0, 0, 0, 0.3, 0.3)
 
-  #rainha_branca.desenhe(24, 26, 1, 0, 0.08, 0.08)
-  #x
-  #rainha_branca.desenhe(78, 26, 1, 0, 0.08, 0.08)
-  #y
-  #rainha_branca.desenhe(24,80, 1, 0, 0.08, 0.08)
-  
-  
-  
-para i de 1 até 8 faça 
- para j de 1 até 8 faça 
-  
-   se matriz[i][j]==1
-     rainha_branca.desenhe( 24+(d_x*(i-1)) ,24+(d_y*(j-1)) , 1, 0, 0.08, 0.08)
-   fim 
-   
- fim
-fim
-  
- marcador_img.desenhe(marcador.x,marcador.y, 1, 0, 0.08, 0.08)
-  
- para i de 1 ate 8 faça
-  # rainha_branca.desenhe(24, 26, 1, 0, 0.08, 0.08)
- fim
-  
-  
+  para i de 1 até 8,
+       j de 1 até 8 faça
+    se ocupado[i][j] então
+      rainha_branca.desenhe(d_x * i - 30, d_y * j - 30, 1, 0, 0.08, 0.08)
+    fim
+  fim
+
+  marcador_img.desenhe(marcador.x, marcador.y, 1, 0, 0.08, 0.08)
 fim
 
-jogo.iniciar("OITO_RAINHAS", 640, 480, atualize, desenhe, 60)
+jogo.iniciar("OITO_RAINHAS", 640, 480, atualize, desenhe)
