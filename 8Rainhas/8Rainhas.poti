@@ -4,6 +4,10 @@ use "jerimum"
 tabuleiro_8x8 = Imagem("imagens/Tabuleiro_8x8.jpg")
 rainha_branca = Imagem("imagens/Rainha_branca.png")
 marcador_img = Imagem("imagens/Marcador.png")
+potigol_img = Imagem("imagens/potigol.png")
+
+#Fonte
+var f := Fonte(16)
 
 #distancias em x e y
 d_x, d_y = 54
@@ -18,10 +22,18 @@ var pecas_originais := 8
 
 ocupado = Matriz.mutavel(8, 8, falso)
 
+botao(x, y, h, l: Real)
+  var click := 0
+  se Mouse.BOTAO_ESQUERDO e Mouse.x > x e Mouse.x < l e Mouse.y > y e Mouse.y < h então
+    click := 1
+  fim
+  retorne click
+fim
+
 atualize()
   i = (Mouse.x + 30) div d_x
   j = (Mouse.y + 30) div d_y
-  se i>=1 e i<=8 e j>=1 e j<=8 então
+  se i >= 1 e i <= 8 e j >= 1 e j <= 8 então
     casa.x := i
     marcador.x := casa.x * d_x - 28
     casa.y := j
@@ -48,6 +60,12 @@ atualize()
 fim
 
 desenhe()
+
+  potigol_img.desenhe(484, 6, 1, 0, 0.4, 0.4)
+
+  f := Fonte(16)
+  f.desenhe("POTIGOL GAMES", 492, 160, 0, Cor.PRETO)
+
   #código para desenhar o jogo
   #desenhando o tabuleiro
   tabuleiro_8x8.desenhe(0, 0, 0, 0, 0.3, 0.3)
@@ -58,6 +76,25 @@ desenhe()
       rainha_branca.desenhe(d_x * i - 30, d_y * j - 30, 1, 0, 0.08, 0.08)
     fim
   fim
+
+  #peças
+  f := Fonte(12)
+  f.desenhe("Rainahs Disponiveis", 500, 190, 0, Cor.PRETO)
+
+  var p := 0
+  para i de 1 até 2,
+       j de 1 até 4 faça
+
+    se p < pecas_originais então
+      rainha_branca.desenhe(496 + d_x / 2 * j - 30, 180 + d_y * i - 30, 1, 0, 0.08, 0.08)
+    fim
+    p := p + 1
+  fim
+
+  #botões
+  #...
+  f := Fonte(12)
+  f.desenhe("Estado do Botão: {botao(0, 0, 100, 100)} ", 500, 400, 0, Cor.PRETO)
 
   marcador_img.desenhe(marcador.x, marcador.y, 1, 0, 0.08, 0.08)
 fim
