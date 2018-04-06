@@ -24,7 +24,7 @@ ocupado = Matriz.mutavel(8, 8, falso)
 
 botao(x, y, h, l: Real)
   var click := 0
-  se Mouse.BOTAO_ESQUERDO e Mouse.x > x e Mouse.x < l e Mouse.y > y e Mouse.y < h então
+  se Mouse.BOTAO_ESQUERDO e Mouse.x > x e Mouse.x < x+l e Mouse.y > y e Mouse.y < y+h então
     click := 1
   fim
   retorne click
