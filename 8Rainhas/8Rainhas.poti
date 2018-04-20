@@ -5,6 +5,7 @@ pasta = "imagens"
 tabuleiro_8x8 = Imagem("{pasta}/Tabuleiro_8x8.jpg")
 rainha_branca = Imagem("{pasta}/Rainha_branca.png")
 marcador_img = Imagem("{pasta}/Marcador.png")
+marcador_erro_img = Imagem("{pasta}/Marcador_erro.png")
 potigol_img = Imagem("{pasta}/potigol.png")
 
 #Fonte
@@ -70,7 +71,42 @@ desenhe()
   para i de 1 até 8,
        j de 1 até 8 faça
     se ocupado[i][j] então
-      rainha_branca.desenhe(d_x * i - 30, d_y * j - 30, 1, 0, 0.08, 0.08)
+      
+     
+      #verifica se a peça colite com outra e adicona um marcador vermelho
+      var colide := falso
+     
+
+      #testa a vertical e a horizontal
+      para k de 1 até 8 faça
+        se k <> j e ocupado[i][k] == verdadeiro ou k <> i e ocupado[k][j] == verdadeiro então
+           colide := verdadeiro
+        fim
+      fim
+
+      #testa diagonal direita
+      para l de 1 até 8, c de 1 até 8  faça
+         se i <> l e j <> c e l+c == i+j e ocupado[l][c] então
+           colide := verdadeiro
+         fim
+      fim
+
+      #testa a diagonal esquerda 
+       para l de 1 até 8, c de 1 até 8  faça
+         se i <> l e j <> c e ((l==i+1 e c==j+1) ou (l==i-1 e c==j-1)) e ocupado[l][c] então
+           colide := verdadeiro
+         fim
+      fim
+
+    
+    
+      se pecas_originais <= 0 e colide == verdadeiro então
+           
+      	marcador_erro_img.desenhe(d_x * i - 30, d_y * j - 30, 1, 0, 0.08, 0.08)
+      fim
+      
+      #desenha rainha
+      rainha_branca.desenhe(d_x * i - 30, d_y * j - 30, 2, 0, 0.08, 0.08)
     fim
   fim
 
@@ -89,7 +125,7 @@ desenhe()
 
   #botões
   #...
-  fonte12.desenhe("Estado do Botão: {botao(0, 0, 100, 100)} ", 500, 400, 0, Cor.PRETO)
+  #fonte12.desenhe("Estado do Botão: {botao(20, 20, 100, 100)} ", 500, 400, 0, Cor.PRETO)
 
   marcador_img.desenhe(marcador.x, marcador.y, 1, 0, 0.08, 0.08)
 fim
