@@ -93,7 +93,7 @@ desenhe()
 
       #testa a diagonal esquerda 
        para l de 1 até 8, c de 1 até 8  faça
-         se i <> l e j <> c e ((l==i+1 e c==j+1) ou (l==i-1 e c==j-1)) e ocupado[l][c] então
+         se i <> l e j <> c e l-c == i-j e ocupado[l][c] então
            colide := verdadeiro
          fim
       fim
