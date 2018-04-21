@@ -1,0 +1,75 @@
+use "jerimum"
+
+#Imagens
+pasta = "imagens"
+tabuleiro_img = Imagem("{pasta}/Tabuleiro_8x8.jpg")
+rainha_branca = Imagem("{pasta}/Rainha_branca.png")
+marcador_img = Imagem("{pasta}/Marcador.png")
+marcador_erro_img = Imagem("{pasta}/Marcador_erro.png")
+potigol_img = Imagem("{pasta}/potigol.png")
+
+#Fonte
+fonte12, fonte16 = Fonte(12), Fonte(16)
+
+#distancias em x e y
+d_x, d_y = 54
+tamanho = 8
+
+tipo Ponto
+  x, y: Inteiro
+  valido() = x >= 1 e x <= tamanho e y >= 1 e y <= tamanho
+fim
+
+var marcador = Ponto(20, 20)
+var peças = Lista(0, Ponto(0, 0))
+
+ocupado(casa: Ponto) = peças.injete(falso)((a, c) => a ou c == casa)
+
+colide(casa: Ponto) = peças.injete(falso)((a, c) => a ou c <> casa e (
+  c.x == casa.x                 ou # testa a vertical
+  c.y == casa.y                 ou # testa a horizontal
+  c.x + c.y == casa.x + casa.y  ou # testa a diagonal direita
+  c.x - c.y == casa.x - casa.y  )) # testa a diagonal esquerda
+
+atualize()
+  casa = Ponto((Mouse.x + 30) div d_x, (Mouse.y + 30) div d_y)
+  se casa.valido então
+    marcador := casa
+
+    # adiciona rainha
+    se Mouse.BOTAO_ESQUERDO e não ocupado(casa) e peças.tamanho < tamanho então
+      peças := casa :: peças
+    fim
+
+    # remove rainha
+    se Mouse.BOTAO_DIREITO e ocupado(casa) então
+      peças := peças.remova(peças.posição(casa))
+    fim
+  fim
+fim
+
+desenhe_rainha(img: Imagem, x, y, z: Inteiro) =
+  img.desenhe(d_x * x - 30, d_y * y - 30, z, 0, 0.08, 0.08)
+
+desenhe()   #código para desenhar o jogo
+  potigol_img.desenhe(484, 6, 1, 0, 0.4, 0.4)
+  fonte16.desenhe("POTIGOL GAMES", 492, 160, 0, Cor.PRETO)
+  tabuleiro_img.desenhe(0, 0, 0, 0, 0.3, 0.3)
+
+  #desenha rainhas
+  para c em peças faça
+    desenhe_rainha(rainha_branca, c.x, c.y, 2)
+    se peças.tamanho >= tamanho e colide(c) então
+    	desenhe_rainha(marcador_erro_img, c.x, c.y, 1)
+    fim
+  fim
+
+  #peças
+  fonte12.desenhe("Rainhas Disponiveis", 500, 210, 0, Cor.PRETO)
+  para p de peças.tamanho até tamanho - 1 faça
+    desenhe_rainha(rainha_branca, 10 + p div 4, 5 + p mod 4, 1)
+  fim
+  desenhe_rainha(marcador_img, marcador.x, marcador.y, 1)
+fim
+
+jogo.iniciar("OITO RAINHAS", 640, 480, atualize, desenhe)
