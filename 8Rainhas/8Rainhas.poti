@@ -2,130 +2,92 @@ use "jerimum"
 
 #Imagens
 pasta = "imagens"
-tabuleiro_8x8 = Imagem("{pasta}/Tabuleiro_8x8.jpg")
+tabuleiro_img = Imagem("{pasta}/Tabuleiro_8x8.jpg")
 rainha_branca = Imagem("{pasta}/Rainha_branca.png")
 marcador_img = Imagem("{pasta}/Marcador.png")
 marcador_erro_img = Imagem("{pasta}/Marcador_erro.png")
 potigol_img = Imagem("{pasta}/potigol.png")
 
 #Fonte
-fonte16 = Fonte(16)
-fonte12 = Fonte(12)
+fonte12, fonte16 = Fonte(12), Fonte(16)
 
 #distancias em x e y
 d_x, d_y = 54
 
+tamanho = 8
+
 tipo Ponto
-  var x, y: Inteiro
+  x, y: Inteiro
+  valido() = x >= 1 e x <= tamanho e y >= 1 e y <= tamanho
 fim
 
-marcador = Ponto(24, 24)
-casa = Ponto(1, 1)
-var pecas_originais := 8
+var marcador = Ponto(20, 20)
+var peças = Lista(0, Ponto(0, 0))
 
-ocupado = Matriz.mutavel(8, 8, falso)
+ocupado(casa: Ponto)
+  var resultado = falso
+  para c em peças faça
+    se c.x == casa.x e c.y == casa.y então
+      resultado := verdadeiro
+    fim
+  fim
+  retorne resultado
+fim
 
-botao(x, y, h, l: Real) = Mouse.BOTAO_ESQUERDO e
-  Mouse.x > x e Mouse.x < x + l e
-  Mouse.y > y e Mouse.y < y + h
+colide(casa: Ponto)
+  var resultado = falso
+  para c em peças faça
+    se c <> casa e (
+       c.x == casa.x                 ou    # testa a vertical
+       c.y == casa.y                 ou    # testa a horizontal
+       c.x + c.y == casa.x + casa.y  ou    # testa a diagonal direita
+       c.x - c.y == casa.x - casa.y) então # testa a diagonal esquerda
+      resultado := verdadeiro
+    fim
+  fim
+  retorne resultado
+fim
 
 atualize()
   i = (Mouse.x + 30) div d_x
   j = (Mouse.y + 30) div d_y
-  se i >= 1 e i <= 8 e j >= 1 e j <= 8 então
-    casa.x := i
-    marcador.x := casa.x * d_x - 28
-    casa.y := j
-    marcador.y := casa.y * d_y - 28
+  casa = Ponto(i, j)
+  se casa.valido então
+    marcador := Ponto(casa.x * d_x - 28, casa.y * d_y - 28)
 
-    #se o botão esquerdo for e casa estiver livre clicado adiciona peça
-    se Mouse.BOTAO_ESQUERDO e não ocupado[i][j] e pecas_originais > 0 então
-      escreva "Casa[{casa.x}, {casa.y}]"
-      #adiciona rainha
-      ocupado[i][j] := verdadeiro
-      #escreva matriz[i][j]
-      pecas_originais := pecas_originais - 1
+    #adiciona rainha
+    se Mouse.BOTAO_ESQUERDO e não ocupado(casa) e peças.tamanho < tamanho então
+      peças := casa :: peças
     fim
 
-    #se o botão esquerdo for e casa estiver livre clicado adiciona peça
-    se Mouse.BOTAO_DIREITO e ocupado[i][j] então
-      escreva "Casa[{casa.x}, {casa.y}]"
-      #adiciona rainha
-      ocupado[i][j] := falso
-      #escreva matriz[i][j]
-      pecas_originais := pecas_originais + 1
+    #remove rainha
+    se Mouse.BOTAO_DIREITO e ocupado(casa) então
+      peças := peças.remova(peças.posição(casa))
     fim
   fim
 fim
 
-desenhe()
-
+desenhe()   #código para desenhar o jogo
   potigol_img.desenhe(484, 6, 1, 0, 0.4, 0.4)
-
   fonte16.desenhe("POTIGOL GAMES", 492, 160, 0, Cor.PRETO)
 
-  #código para desenhar o jogo
   #desenhando o tabuleiro
-  tabuleiro_8x8.desenhe(0, 0, 0, 0, 0.3, 0.3)
-
-  para i de 1 até 8,
-       j de 1 até 8 faça
-    se ocupado[i][j] então
-      
-     
-      #verifica se a peça colite com outra e adicona um marcador vermelho
-      var colide := falso
-     
-
-      #testa a vertical e a horizontal
-      para k de 1 até 8 faça
-        se k <> j e ocupado[i][k] == verdadeiro ou k <> i e ocupado[k][j] == verdadeiro então
-           colide := verdadeiro
-        fim
-      fim
-
-      #testa diagonal direita
-      para l de 1 até 8, c de 1 até 8  faça
-         se i <> l e j <> c e l+c == i+j e ocupado[l][c] então
-           colide := verdadeiro
-         fim
-      fim
-
-      #testa a diagonal esquerda 
-       para l de 1 até 8, c de 1 até 8  faça
-         se i <> l e j <> c e l-c == i-j e ocupado[l][c] então
-           colide := verdadeiro
-         fim
-      fim
-
-    
-    
-      se pecas_originais <= 0 e colide == verdadeiro então
-           
-      	marcador_erro_img.desenhe(d_x * i - 30, d_y * j - 30, 1, 0, 0.08, 0.08)
-      fim
-      
-      #desenha rainha
-      rainha_branca.desenhe(d_x * i - 30, d_y * j - 30, 2, 0, 0.08, 0.08)
+  tabuleiro_img.desenhe(0, 0, 0, 0, 0.3, 0.3)
+  para c em peças faça
+    se peças.tamanho >= tamanho e colide(c) então
+    	marcador_erro_img.desenhe(d_x * c.x - 30, d_y * c.y - 30, 1, 0, 0.08, 0.08)
     fim
+
+    #desenha rainha
+    rainha_branca.desenhe(d_x * c.x - 30, d_y * c.y - 30, 2, 0, 0.08, 0.08)
   fim
 
   #peças
   fonte12.desenhe("Rainhas Disponiveis", 500, 190, 0, Cor.PRETO)
-
-  var p := 0
-  para i de 1 até 2,
-       j de 1 até 4 faça
-
-    se p < pecas_originais então
-      rainha_branca.desenhe(496 + d_x / 2 * j - 30, 180 + d_y * i - 30, 1, 0, 0.08, 0.08)
-    fim
-    p := p + 1
+  para p de peças.tamanho até tamanho - 1 faça
+    i, j = p div 4, p mod 4
+    rainha_branca.desenhe(528 + d_x / 2 * j - 30, 243 + d_y * i - 30, 1, 0, 0.08, 0.08)
   fim
-
-  #botões
-  #...
-  #fonte12.desenhe("Estado do Botão: {botao(20, 20, 100, 100)} ", 500, 400, 0, Cor.PRETO)
 
   marcador_img.desenhe(marcador.x, marcador.y, 1, 0, 0.08, 0.08)
 fim
